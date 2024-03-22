@@ -5,8 +5,10 @@ import * as React from 'react'
 
 function Board() {
   // 🐨 squares is the state for this component. Add useState for squares
-  const squares = Array(9).fill(null)
-
+  const defaultSquares = Array(9).fill(null);
+  const [squares, setSquares] = React.useState(defaultSquares);
+  const [status, setStatus] = React.useState(calculateStatus(null, squares, calculateNextValue(squares)));
+  const [winner, setWinner] = React.useState(null);
   // 🐨 We'll need the following bits of derived state:
   // - nextValue ('X' or 'O')
   // - winner ('X', 'O', or null)
@@ -20,10 +22,22 @@ function Board() {
     // 🐨 first, if there's already a winner or there's already a value at the
     // given square index (like someone clicked a square that's already been
     // clicked), then return early so we don't make any state changes
-    //
+    const squareValue = squares[square];
+
+    if(squareValue || winner) return;
+    
+    const squaresCopy = [...squares];
+    const nextValue = calculateNextValue(squaresCopy);
+    squaresCopy[square] = nextValue;
+
+    const hasWinner = calculateWinner(squaresCopy);    
+    const nextStatus = calculateStatus(hasWinner, squaresCopy, calculateNextValue(squaresCopy));
     // 🦉 It's typically a bad idea to mutate or directly change state in React.
     // Doing so can lead to subtle bugs that can easily slip into production.
-    //
+
+    setSquares(() => squaresCopy);
+    setWinner(() => hasWinner);
+    setStatus(() => nextStatus);
     // 🐨 make a copy of the squares array
     // 💰 `[...squares]` will do it!)
     //
@@ -36,6 +50,9 @@ function Board() {
   function restart() {
     // 🐨 reset the squares
     // 💰 `Array(9).fill(null)` will do it!
+    const nextValue = calculateNextValue(defaultSquares);
+    setSquares(defaultSquares);
+    setStatus(calculateStatus(false, defaultSquares, nextValue));
   }
 
   function renderSquare(i) {
@@ -49,7 +66,7 @@ function Board() {
   return (
     <div>
       {/* 🐨 put the status in the div below */}
-      <div className="status">STATUS</div>
+      <div className="status">{status}</div>
       <div className="board-row">
         {renderSquare(0)}
         {renderSquare(1)}

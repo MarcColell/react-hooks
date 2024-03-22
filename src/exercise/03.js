@@ -7,47 +7,57 @@ function Name({name, onNameChange}) {
   return (
     <div>
       <label htmlFor="name">Name: </label>
-      <input id="name" value={name} onChange={onNameChange} />
+      <input id="name" value={name} onChange={(event) => onNameChange(event, 'name')} />
     </div>
   )
 }
 
 // 🐨 accept `animal` and `onAnimalChange` props to this component
-function FavoriteAnimal() {
+function FavoriteAnimal({ animal, onAnimalChange}) {
   // 💣 delete this, it's now managed by the App
-  const [animal, setAnimal] = React.useState('')
+
   return (
     <div>
       <label htmlFor="animal">Favorite Animal: </label>
       <input
         id="animal"
         value={animal}
-        onChange={event => setAnimal(event.target.value)}
+        onChange={event => onAnimalChange(event, 'animal')}
       />
     </div>
   )
 }
 
 // 🐨 uncomment this
-// function Display({name, animal}) {
-//   return <div>{`Hey ${name}, your favorite animal is: ${animal}!`}</div>
-// }
+ function Display({name, animal}) {
+   return <div>{`Hey ${name}, your favorite animal is: ${animal}!`}</div>
+ }
 
-// 💣 remove this component in favor of the new one
-function Display({name}) {
-  return <div>{`Hey ${name}, you are great!`}</div>
-}
 
 function App() {
   // 🐨 add a useState for the animal
-  const [name, setName] = React.useState('')
+  const [name, setName] = React.useState(() => (''));
+  const [animal, setAnimal] = React.useState(() => (''));
+
+
+  const handleOnChange = (e, isFrom) => {
+    const value = e.target.value;
+
+    if(isFrom === 'animal') {
+      setAnimal(value);
+      return;
+    }
+
+    setName(value);
+  };
+
   return (
     <form>
-      <Name name={name} onNameChange={event => setName(event.target.value)} />
+      <Name name={name} onNameChange={handleOnChange} />
       {/* 🐨 pass the animal and onAnimalChange prop here (similar to the Name component above) */}
-      <FavoriteAnimal />
+      <FavoriteAnimal animal={animal} onAnimalChange={handleOnChange}/>
       {/* 🐨 pass the animal prop here */}
-      <Display name={name} />
+      <Display name={name} animal={animal}/>
     </form>
   )
 }
